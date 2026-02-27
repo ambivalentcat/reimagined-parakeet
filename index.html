@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stranger Things: Movie Club</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;600;800&display=swap');
+
+        :root {
+            --bg-color: #08080c;
+            --surface-color: #12121c;
+            --text-main: #f5f5f1;
+            --text-muted: #a1a1aa;
+            --accent-red: #E50914; 
+            --accent-red-glow: rgba(229, 9, 20, 0.5);
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            background-image: 
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.04));
+            background-size: 100% 2px, 3px 100%;
+            min-height: 100vh;
+            transition: filter 1s ease-in-out, background-color 1s ease-in-out;
+            overflow-x: hidden;
+        }
+
+        /* --- THE UPSIDE DOWN MODE --- */
+        body.upside-down {
+            /* Hue-rotate turns the red into a cold, toxic cyan/blue */
+            filter: hue-rotate(160deg) saturate(80%) contrast(110%);
+            background-color: #020205;
+        }
+        
+        .spore {
+            position: fixed;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            animation: float-up linear infinite;
+        }
+
+        @keyframes float-up {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+        }
+
+        h1, h2, h3, .brand-font {
+            font-family: 'Libre Baskerville', serif;
+        }
+
+        /* --- NEON FLICKER ANIMATION --- */
+        .red-glow-text {
+            text-shadow: 0 0 10px var(--accent-red-glow), 0 0 20px var(--accent-red-glow);
+            animation: neon-flicker 4s infinite alternate;
+        }
+
+        @keyframes neon-flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+                text-shadow: 0 0 10px var(--accent-red-glow), 0 0 20px var(--accent-red-glow);
+                opacity: 1;
+            }
+            20%, 24%, 55% {
+                text-shadow: none;
+                opacity: 0.7;
+            }
+        }
+
+        .card-border {
+            border: 1px solid #27272a;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .btn-primary {
+            background-color: transparent;
+            color: var(--accent-red);
+            border: 2px solid var(--accent-red);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px transparent;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-red);
+            color: white;
+            box-shadow: 0 0 15px var(--accent-red-glow);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--text-muted);
+            border: 1px solid #3f3f46;
+        }
+
+        .btn-outline:hover, .btn-active {
+            background-color: #27272a !important;
+            color: var(--accent-red) !important;
+            border-color: var(--accent-red) !important;
+        }
+
+        /* 3D Flip Card CSS */
+        .flip-card {
+            background-color: transparent;
+            height: 320px; 
+            perspective: 1000px;
+            cursor: pointer;
+        }
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: left;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #27272a;
+        }
+        .flip-card-front {
+            background-color: var(--surface-color);
+        }
+        .flip-card-back {
+            background-color: #181825;
+            transform: rotateY(180deg);
+            border-color: var(--accent-red);
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) { .chart-container { height: 350px; } }
+
+        /* Spoiler Blur */
+        .spoiler-content {
+            filter: blur(8px);
+            opacity: 0.5;
+            user-select: none;
+            transition: all 0.4s ease;
+        }
+        .spoiler-container.revealed .spoiler-content {
+            filter: blur(0); opacity: 1; user-select: auto;
+        }
+        .spoiler-overlay {
+            position: absolute; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(8, 8, 12, 0.6);
+            z-index: 10; cursor: pointer;
+            transition: opacity 0.3s ease;
+            border: 1px dashed var(--accent-red);
+            border-radius: 0.5rem;
+        }
+        .spoiler-container.revealed .spoiler-overlay {
+            opacity: 0; pointer-events: none;
+        }
+
+        .found-item {
+            text-decoration: line-through;
+            text-decoration-color: var(--accent-red);
+            text-decoration-thickness: 3px;
+            opacity: 0.5;
+        }
+        
+        /* Easter Egg Animation */
+        @keyframes pulse-reward {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 var(--accent-red-glow); }
+            70% { transform: scale(1); box-shadow: 0 0 0 15px transparent; }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 transparent; }
+        }
+        .reward-active {
+            animation: pulse-reward 2s infinite;
+        }
+    </style>
+    <!-- Chosen Palette: Stranger Things Neon Dark - Deep Space (#08080c), Surface Navy (#12121c), Neon Red (#E50914) -->
+    <!-- Application Structure Plan: 
+         1. Header: Includes new "Upside Down" toggle.
+         2. Hero Section: Flickering neon text.
+         3. Vocabulary: 3D Flip cards.
+         4. Watchlist (Bingo): With hidden reward state for 6/6.
+         5. Quote of the Episode (NEW): Deep dive into a specific English phrase.
+         6. Timeline & Discussion: Chart and blurred text.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="flex flex-col relative" id="main-body">
+
+    <!-- Particle Container for Upside Down -->
+    <div id="particles" class="fixed inset-0 pointer-events-none z-0"></div>
+
+    <!-- Navigation -->
+    <header class="bg-[#08080c] text-white p-4 sticky top-0 z-50 border-b border-red-900 shadow-md relative">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <span class="text-2xl brand-font font-bold text-[#E50914] tracking-widest uppercase">Movie Club</span>
+                <span class="hidden md:inline text-sm text-gray-400">| S1E1: The Vanishing</span>
+            </div>
+            <nav class="flex gap-4 text-sm font-semibold items-center overflow-x-auto">
+                <button onclick="scrollToSection('vocab')" class="hover:text-[#E50914] transition-colors whitespace-nowrap">Лексика</button>
+                <button onclick="scrollToSection('watchlist')" class="hover:text-[#E50914] transition-colors whitespace-nowrap">Бинго</button>
+                <button onclick="scrollToSection('quote')" class="hover:text-[#E50914] transition-colors whitespace-nowrap">Цитата</button>
+                <button onclick="scrollToSection('discussion')" class="hover:text-[#E50914] transition-colors whitespace-nowrap">Обсуждение</button>
+                <!-- Upside Down Toggle -->
+                <button id="upside-down-btn" class="ml-2 px-3 py-1 border border-gray-600 rounded text-xs hover:bg-gray-800 transition-colors uppercase tracking-widest">
+                    Изнанка
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="py-20 px-4 relative flex flex-col items-center justify-center min-h-[60vh] z-10">
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#E50914] opacity-20 rounded-full blur-[100px] pointer-events-none"></div>
+
+        <div class="container mx-auto text-center max-w-3xl relative z-10">
+            <h2 class="text-xl md:text-2xl text-gray-400 font-light mb-2 tracking-[0.2em] uppercase">English House Presents</h2>
+            <h1 class="text-5xl md:text-7xl font-bold mb-6 text-white brand-font uppercase tracking-wider red-glow-text leading-tight">
+                Stranger<br>Things
+            </h1>
+            <p class="text-lg md:text-xl text-gray-300 mb-8 font-light">
+                Интерактивный гид к 1-й серии. Учим слова, ищем пасхалки 80-х и обсуждаем сюжет на английском!
+            </p>
+            <button onclick="scrollToSection('vocab')" class="btn-primary py-3 px-8 rounded font-bold uppercase tracking-widest">
+                Начать погружение
+            </button>
+        </div>
+    </section>
+
+    <!-- Vocabulary Section -->
+    <section id="vocab" class="py-16 px-4 container mx-auto relative z-10">
+        <div class="mb-10 text-center max-w-2xl mx-auto">
+            <h2 class="text-3xl brand-font font-bold mb-4 text-[#E50914]">1. Hawkins Vocabulary</h2>
+            <p class="text-gray-400">Нажимайте на карточки, чтобы перевернуть их и выучить контекст.</p>
+            
+            <div class="flex flex-wrap justify-center gap-2 mt-6" id="vocab-filters">
+                <button class="btn-outline btn-active py-1 px-4 rounded-full text-sm transition-colors" data-filter="all">Все слова</button>
+                <button class="btn-outline py-1 px-4 rounded-full text-sm transition-colors" data-filter="action">Действие</button>
+                <button class="btn-outline py-1 px-4 rounded-full text-sm transition-colors" data-filter="nerd">D&D / 80s</button>
+                <button class="btn-outline py-1 px-4 rounded-full text-sm transition-colors" data-filter="police">Следствие</button>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="vocab-grid"></div>
+    </section>
+
+    <!-- Gamification: Watchlist Section -->
+    <section id="watchlist" class="py-16 px-4 bg-[#0d0d14] border-y border-gray-800 relative z-10">
+        <div class="container mx-auto max-w-5xl">
+            <div class="flex flex-col md:flex-row gap-8 items-center">
+                <div class="w-full md:w-1/3 text-center md:text-left">
+                    <h2 class="text-3xl brand-font font-bold mb-4 text-white">2. Bingo 80-x</h2>
+                    <p class="text-gray-400 text-sm mb-4">
+                        Кликайте на пункты, когда заметите их на экране. Сможете найти все 6?
+                    </p>
+                    <div class="text-5xl font-bold text-white mt-4" id="score-display">0<span class="text-gray-600 text-3xl">/6</span></div>
+                    
+                    <!-- Hidden Reward -->
+                    <div id="bingo-reward" class="hidden mt-6 bg-[#12121c] border border-[#E50914] p-4 rounded text-center reward-active">
+                        <p class="text-[#E50914] brand-font text-lg font-bold mb-1">📻 Входящее сообщение...</p>
+                        <p class="text-gray-300 text-sm italic">"He's here... The Demogorgon."</p>
+                        <p class="text-xs text-gray-500 mt-2">Вы открыли пасхалку!</p>
+                    </div>
+                </div>
+                
+                <div class="w-full md:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-4" id="watchlist-grid"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW: Quote of the Episode -->
+    <section id="quote" class="py-16 px-4 relative z-10">
+        <div class="container mx-auto max-w-3xl text-center">
+            <h2 class="text-3xl brand-font font-bold mb-8 text-[#E50914]">3. Quote of the Episode</h2>
+            
+            <div class="bg-[#12121c] p-8 rounded-lg card-border relative">
+                <div class="text-6xl text-gray-700 absolute top-4 left-4 brand-font opacity-50">"</div>
+                <h3 class="text-2xl md:text-3xl font-bold text-white mb-4 italic leading-relaxed relative z-10">
+                    Mornings are for <span class="text-[#E50914]">coffee</span> and <span class="text-[#E50914]">contemplation</span>.
+                </h3>
+                <p class="text-right text-gray-400 font-bold mb-6">— Chief Hopper</p>
+                
+                <div class="text-left border-t border-gray-800 pt-6 mt-6">
+                    <p class="text-sm text-gray-300 mb-2"><strong class="text-white">Перевод:</strong> Утро создано для кофе и размышлений.</p>
+                    <p class="text-sm text-gray-300"><strong class="text-white">Разбор слова:</strong> <em>Contemplation</em> /ˌkɒntɛmˈpleɪʃn/ — глубокое, вдумчивое размышление, созерцание. Хоппер использует это сложное слово иронично, чтобы отмахнуться от работы и просто выпить кофе.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Context/Timeline Section -->
+    <section id="timeline" class="py-16 px-4 bg-[#0a0a0f] border-t border-gray-800 relative z-10">
+        <div class="container mx-auto">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl brand-font font-bold mb-4 text-[#E50914]">4. График напряжения (Ep 1)</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">Нажмите на точки на графике, чтобы изучить структуру саспенса серии.</p>
+            </div>
+            <div class="bg-[#12121c] p-4 md:p-6 rounded-lg card-border">
+                <div class="chart-container"><canvas id="timelineChart"></canvas></div>
+            </div>
+            <div id="timeline-info" class="mt-6 p-6 bg-[#181825] rounded-lg border border-gray-700 min-h-[120px] transition-all hidden">
+                <h3 id="tl-title" class="font-bold text-xl text-white mb-2 brand-font"></h3>
+                <p id="tl-desc" class="text-gray-300 leading-relaxed"></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Discussion Section with Spoiler Blur -->
+    <section id="discussion" class="py-16 px-4 bg-[#08080c] relative z-10">
+        <div class="container mx-auto max-w-4xl">
+            <h2 class="text-3xl brand-font font-bold mb-2 text-white">5. Movie Club Discussion</h2>
+            <p class="text-gray-400 mb-10">Темы для обсуждения на английском. Кликните, чтобы снять защиту от спойлеров.</p>
+            <div class="space-y-6" id="discussion-container"></div>
+        </div>
+    </section>
+
+    <footer class="bg-black text-gray-500 py-10 text-center border-t border-red-900 relative z-10">
+        <p class="brand-font text-xl mb-2 text-[#E50914] tracking-widest uppercase">Friends don't lie</p>
+        <p class="text-sm">Prepared for the English Movie Club</p>
+    </footer>
+
+    <script>
+        // --- The Upside Down Logic ---
+        const upsideDownBtn = document.getElementById('upside-down-btn');
+        const body = document.getElementById('main-body');
+        const particlesContainer = document.getElementById('particles');
+        let upsideDownActive = false;
+        let particleInterval;
+
+        function createParticle() {
+            if(!upsideDownActive) return;
+            const particle = document.createElement('div');
+            particle.className = 'spore';
+            const size = Math.random() * 4 + 1; // 1px to 5px
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.left = `${Math.random() * 100}vw`;
+            particle.style.animationDuration = `${Math.random() * 10 + 5}s`; // 5s to 15s
+            
+            particlesContainer.appendChild(particle);
+            
+            // Remove after animation ends
+            setTimeout(() => {
+                if(particle.parentNode) particle.parentNode.removeChild(particle);
+            }, 15000);
+        }
+
+        upsideDownBtn.addEventListener('click', () => {
+            upsideDownActive = !upsideDownActive;
+            if(upsideDownActive) {
+                body.classList.add('upside-down');
+                upsideDownBtn.innerText = "Вернуться";
+                upsideDownBtn.classList.add('bg-white', 'text-black');
+                particleInterval = setInterval(createParticle, 200);
+            } else {
+                body.classList.remove('upside-down');
+                upsideDownBtn.innerText = "Изнанка";
+                upsideDownBtn.classList.remove('bg-white', 'text-black');
+                clearInterval(particleInterval);
+                particlesContainer.innerHTML = ''; // clear spores
+            }
+        });
+
+        // --- Vocabulary Data ---
+        const vocabulary = [
+            { word: "To Vanish", pron: "/ˈvænɪʃ/", type: "action", translation: "Исчезнуть (бесследно)", def: "To disappear suddenly and completely in a way that cannot be explained.", ctx: "Will vanishes on his way home." },
+            { word: "Campaign", pron: "/kæmˈpeɪn/", type: "nerd", translation: "Кампания (в игре)", def: "A series of interconnected adventures in a tabletop role-playing game like D&D.", ctx: "We're in the middle of a ten-hour campaign!" },
+            { word: "Static", pron: "/ˈstætɪk/", type: "action", translation: "Помехи / Шум", def: "Crackling or hissing noises on a telephone, radio, or other electrical system.", ctx: "Joyce hears static and heavy breathing on the phone." },
+            { word: "Search Party", pron: "/sɜːtʃ ˈpɑːrti/", type: "police", translation: "Поисковый отряд", def: "A group of people organized to look for someone who is lost.", ctx: "The town organizes a search party in the woods." },
+            { word: "Curfew", pron: "/ˈkɜːrfjuː/", type: "action", translation: "Комендантский час", def: "A rule requiring people to stay indoors between specified hours.", ctx: "The boys are supposed to be home before curfew." },
+            { word: "Demogorgon", pron: "/ˌdɛməˈɡɔːrɡən/", type: "nerd", translation: "Демогоргон", def: "A powerful demon prince in D&D; the kids use this name for the real monster.", ctx: "It got me! The Demogorgon!" }
+        ];
+
+        function renderVocab(filterType) {
+            const grid = document.getElementById('vocab-grid');
+            grid.innerHTML = '';
+            const filtered = filterType === 'all' ? vocabulary : vocabulary.filter(item => item.type === filterType);
+
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "flip-card";
+                card.onclick = () => card.classList.toggle('flipped');
+
+                let badgeColor = 'text-gray-300 border-gray-600';
+                let typeName = 'Слово';
+                if(item.type === 'action') { badgeColor = 'text-red-400 border-red-800 bg-red-900/20'; typeName = 'Действие'; }
+                if(item.type === 'nerd') { badgeColor = 'text-blue-400 border-blue-800 bg-blue-900/20'; typeName = 'D&D/80s'; }
+                if(item.type === 'police') { badgeColor = 'text-yellow-400 border-yellow-800 bg-yellow-900/20'; typeName = 'Следствие'; }
+
+                card.innerHTML = `
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front justify-between">
+                            <div class="flex justify-between items-start">
+                                <span class="inline-block px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded border ${badgeColor}">${typeName}</span>
+                                <span class="text-gray-500 text-xl">🔁</span>
+                            </div>
+                            <div>
+                                <h3 class="text-3xl font-bold text-white mb-1">${item.word}</h3>
+                                <p class="text-sm text-gray-500 font-mono">${item.pron}</p>
+                            </div>
+                            <p class="text-xs text-[#E50914] font-bold uppercase mt-4 tracking-widest">Click to flip</p>
+                        </div>
+                        <div class="flip-card-back justify-between">
+                            <div>
+                                <h3 class="text-xl font-bold text-white mb-2 pb-2 border-b border-gray-700">${item.translation}</h3>
+                                <p class="text-sm text-gray-400 leading-relaxed mt-3">${item.def}</p>
+                            </div>
+                            <div class="bg-[#08080c] p-3 text-sm text-gray-300 italic border-l-2 border-[#E50914] mt-4 rounded">
+                                "${item.ctx}"
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        document.querySelectorAll('#vocab-filters button').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('#vocab-filters button').forEach(b => b.classList.remove('btn-active'));
+                e.target.classList.add('btn-active');
+                renderVocab(e.target.dataset.filter);
+            });
+        });
+
+        // --- Watchlist / Bingo Logic ---
+        const watchlistItems = [
+            { id: 1, text: "Бросок кубика D20", icon: "🎲" },
+            { id: 2, text: "Мерцающие лампочки", icon: "💡" },
+            { id: 3, text: "Рация крупным планом", icon: "📻" },
+            { id: 4, text: "Татуировка «011»", icon: "👁️" },
+            { id: 5, text: "Вывеска Benny's Burgers", icon: "🍔" },
+            { id: 6, text: "Музыка на синтезаторе", icon: "🎹" }
+        ];
+        let foundCount = 0;
+
+        function renderWatchlist() {
+            const grid = document.getElementById('watchlist-grid');
+            watchlistItems.forEach(item => {
+                const div = document.createElement('div');
+                div.className = "bg-[#181825] p-4 rounded card-border cursor-pointer hover:bg-[#1f1f2e] transition-all flex items-center gap-3 group";
+                div.onclick = () => toggleWatchlistItem(div, item.id);
+                div.innerHTML = `
+                    <div class="text-2xl opacity-70 group-hover:opacity-100 transition-opacity">${item.icon}</div>
+                    <div class="text-sm font-semibold text-gray-300 item-text transition-all">${item.text}</div>
+                    <div class="ml-auto min-w-[24px] h-6 rounded border-2 border-gray-600 flex items-center justify-center check-circle transition-colors"></div>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        function toggleWatchlistItem(element, id) {
+            const textEl = element.querySelector('.item-text');
+            const circle = element.querySelector('.check-circle');
+            const rewardBox = document.getElementById('bingo-reward');
+            
+            if (element.classList.contains('active')) {
+                element.classList.remove('active');
+                textEl.classList.remove('found-item');
+                circle.classList.remove('bg-[#E50914]', 'border-[#E50914]');
+                circle.innerHTML = '';
+                foundCount--;
+            } else {
+                element.classList.add('active');
+                textEl.classList.add('found-item');
+                circle.classList.add('bg-[#E50914]', 'border-[#E50914]');
+                circle.innerHTML = '<span class="text-white text-xs font-bold">✓</span>';
+                foundCount++;
+            }
+            
+            document.getElementById('score-display').innerHTML = `${foundCount}<span class="text-gray-600 text-3xl">/6</span>`;
+            
+            // Trigger Easter Egg Reveal
+            if(foundCount === 6) {
+                rewardBox.classList.remove('hidden');
+            } else {
+                rewardBox.classList.add('hidden');
+            }
+        }
+
+        // --- Timeline Chart Logic ---
+        const timelineData = [
+            { period: "Лаборатория", label: "Инцидент", tension: 90, title: "Ученый в беде", desc: "Серия открывается агрессивно: мерцающий свет, паника, бегущий ученый. Саспенс на максимуме сразу." },
+            { period: "Дом Майка", label: "Игра в D&D", tension: 20, title: "Спокойствие 80-х", desc: "Контрастный переход: подвал, дети играют. Знакомство с главными героями в их естественной среде." },
+            { period: "Дорога домой", label: "Похищение", tension: 95, title: "Исчезновение Уилла", desc: "Уилл едет один через лес. Жуткая атмосфера, силуэт на дороге, бегство в сарай." },
+            { period: "Утро", label: "Поиски", tension: 40, title: "Реакция взрослых", desc: "Хоппер лениво просыпается. Джойс понимает, что сын пропал. Напряжение сменяется тревогой." },
+            { period: "Кафе Бенни", label: "Появление 11", tension: 70, title: "Встреча с Оди", desc: "Появление странной девочки. Снова правительственная угроза в лице агентов под прикрытием." }
+        ];
+
+        function initChart() {
+            const ctx = document.getElementById('timelineChart').getContext('2d');
+            Chart.defaults.color = '#a1a1aa';
+            Chart.defaults.font.family = 'Outfit';
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: timelineData.map(d => d.period),
+                    datasets: [{
+                        label: 'Уровень Напряжения',
+                        data: timelineData.map(d => d.tension),
+                        borderColor: '#E50914',
+                        backgroundColor: 'rgba(229, 9, 20, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#E50914',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 10,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    onClick: (event, activeElements) => {
+                        if (activeElements.length > 0) showTimelineInfo(activeElements[0].index);
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#181825', titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 13 }, padding: 12, borderColor: '#3f3f46', borderWidth: 1,
+                            callbacks: { label: context => " " + timelineData[context.dataIndex].label }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, max: 100, ticks: { display: false }, grid: { display: false } },
+                        x: { grid: { color: '#27272a' }, ticks: { color: '#a1a1aa' } }
+                    }
+                }
+            });
+        }
+
+        function showTimelineInfo(index) {
+            const infoBox = document.getElementById('timeline-info');
+            document.getElementById('tl-title').innerText = timelineData[index].title;
+            document.getElementById('tl-desc').innerText = timelineData[index].desc;
+            infoBox.classList.remove('hidden');
+            infoBox.style.opacity = '0';
+            infoBox.style.transform = 'translateY(10px)';
+            setTimeout(() => {
+                infoBox.style.transition = 'all 0.3s ease';
+                infoBox.style.opacity = '1';
+                infoBox.style.transform = 'translateY(0)';
+            }, 10);
+        }
+
+        // --- Discussion Logic ---
+        const discussionQs = [
+            { q: "1. Foreshadowing (Предзнаменование)", a: "Игра в подвале предсказывает сюжет. Мальчики сталкиваются с 'Демогоргоном', и Уилл выкидывает '7' — он проигрывает. Это метафора того, что с ним случится через 10 минут." },
+            { q: "2. The Adults vs. The Kids", a: "Взрослые (полиция) ищут рациональные ответы (сбежал к отцу). Дети сразу принимают паранормальную версию и готовятся к битве. Как это характеризует поколения?" },
+            { q: "3. The Lighting (Освещение)", a: "Свет используется как инструмент сторителлинга. Когда монстр рядом, электричество всегда сбоит. Это визуальный сигнал тревоги, заменяющий скримеры." }
+        ];
+
+        function renderDiscussion() {
+            const container = document.getElementById('discussion-container');
+            discussionQs.forEach(item => {
+                const div = document.createElement('div');
+                div.className = "bg-[#12121c] rounded card-border p-6 relative spoiler-container overflow-hidden";
+                div.innerHTML = `
+                    <h3 class="text-xl font-bold mb-4 pr-10 text-white">${item.q}</h3>
+                    <div class="relative mt-4">
+                        <div class="spoiler-overlay text-white font-bold tracking-wide uppercase flex flex-col items-center justify-center backdrop-blur-md" onclick="this.parentElement.parentElement.classList.add('revealed')">
+                            <span class="text-2xl mb-2 text-[#E50914]">👁️‍🗨️</span> Reveal Answers
+                        </div>
+                        <div class="spoiler-content text-gray-300 leading-relaxed border-l-2 border-[#E50914] pl-4">${item.a}</div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function scrollToSection(id) { 
+            const el = document.getElementById(id);
+            if(el) {
+                const y = el.getBoundingClientRect().top + window.scrollY - 80;
+                window.scrollTo({top: y, behavior: 'smooth'});
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderVocab('all'); renderWatchlist(); initChart(); renderDiscussion();
+        });
+    </script>
+</body>
+</html>
