@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stranger Things: Movie Club Guide</title>
+    <title>Stranger Things | English Movie Club</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -27,42 +27,31 @@
             overflow-x: hidden;
         }
 
-        /* --- CRT TV EFFECT (Scanlines & Vignette) --- */
-        .crt::before {
-            content: " ";
-            display: block;
-            position: fixed;
+        /* --- CRT TV EFFECT (Toggleable) --- */
+        body.crt-enabled::before {
+            content: " "; display: block; position: fixed;
             top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            z-index: 999;
-            background-size: 100% 2px, 3px 100%;
-            pointer-events: none;
+            z-index: 999; background-size: 100% 2px, 3px 100%; pointer-events: none;
         }
-        .crt::after {
-            content: " ";
-            display: block;
-            position: fixed;
+        body.crt-enabled::after {
+            content: " "; display: block; position: fixed;
             top: 0; left: 0; bottom: 0; right: 0;
             background: radial-gradient(circle, rgba(0,0,0,0) 60%, rgba(0,0,0,0.6) 100%);
-            z-index: 998;
-            pointer-events: none;
+            z-index: 998; pointer-events: none;
         }
 
         /* --- THE UPSIDE DOWN MODE --- */
         body.upside-down {
-            filter: hue-rotate(160deg) saturate(80%) contrast(110%);
+            filter: hue-rotate(160deg) saturate(70%) contrast(120%);
             background-color: #010103;
         }
         
         .spore {
-            position: fixed;
-            background: rgba(255, 255, 255, 0.6);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
+            position: fixed; background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%; pointer-events: none; z-index: 9999;
             animation: float-up linear infinite;
         }
-
         @keyframes float-up {
             0% { transform: translateY(100vh) scale(0); opacity: 0; }
             10% { opacity: 1; }
@@ -70,101 +59,56 @@
             100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
         }
 
-        h1, h2, h3, .brand-font {
-            font-family: 'Libre Baskerville', serif;
-        }
-        
-        .typewriter-font {
-            font-family: 'VT323', monospace;
-        }
+        h1, h2, h3, .brand-font { font-family: 'Libre Baskerville', serif; }
+        .typewriter-font { font-family: 'VT323', monospace; }
 
         /* --- NEON FLICKER ANIMATION --- */
         .red-glow-text {
             text-shadow: 0 0 10px var(--accent-red-glow), 0 0 20px var(--accent-red-glow);
             animation: neon-flicker 4s infinite alternate;
         }
-
         @keyframes neon-flicker {
-            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
-                text-shadow: 0 0 10px var(--accent-red-glow), 0 0 20px var(--accent-red-glow), 0 0 40px var(--accent-red-glow);
-                opacity: 1;
-            }
-            20%, 24%, 55% {
-                text-shadow: none;
-                opacity: 0.8;
-            }
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { text-shadow: 0 0 10px var(--accent-red-glow), 0 0 20px var(--accent-red-glow), 0 0 40px var(--accent-red-glow); opacity: 1; }
+            20%, 24%, 55% { text-shadow: none; opacity: 0.8; }
         }
 
-        .card-border {
-            border: 1px solid #27272a;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-        }
+        .card-border { border: 1px solid #27272a; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
 
-        .btn-primary {
-            background-color: transparent;
-            color: var(--accent-red);
-            border: 2px solid var(--accent-red);
-            transition: all 0.3s ease;
-        }
+        .btn-primary { background-color: transparent; color: var(--accent-red); border: 2px solid var(--accent-red); transition: all 0.3s ease; }
+        .btn-primary:hover { background-color: var(--accent-red); color: white; box-shadow: 0 0 15px var(--accent-red-glow); }
 
-        .btn-primary:hover {
-            background-color: var(--accent-red);
-            color: white;
-            box-shadow: 0 0 15px var(--accent-red-glow);
-        }
-
-        .btn-outline {
-            background-color: transparent;
-            color: var(--text-muted);
-            border: 1px solid #3f3f46;
-        }
-
-        .btn-outline:hover, .btn-active {
-            background-color: #27272a !important;
-            color: var(--accent-red) !important;
-            border-color: var(--accent-red) !important;
-        }
+        .btn-outline { background-color: transparent; color: var(--text-muted); border: 1px solid #3f3f46; transition: all 0.3s; }
+        .btn-outline:hover, .btn-active { background-color: #27272a !important; color: var(--accent-red) !important; border-color: var(--accent-red) !important; }
 
         /* 3D Flip Card CSS */
-        .flip-card {
-            background-color: transparent;
-            height: 320px; 
-            perspective: 1000px;
-            cursor: pointer;
-        }
+        .flip-card { background-color: transparent; height: 320px; perspective: 1000px; cursor: pointer; }
         .flip-card-inner {
-            position: relative;
-            width: 100%; height: 100%;
-            text-align: left;
-            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
-            transform-style: preserve-3d;
+            position: relative; width: 100%; height: 100%; text-align: left;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); transform-style: preserve-3d;
         }
         .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
         .flip-card-front, .flip-card-back {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             -webkit-backface-visibility: hidden; backface-visibility: hidden;
-            border-radius: 0.5rem; padding: 1.5rem;
-            display: flex; flex-direction: column;
-            border: 1px solid #27272a;
+            border-radius: 0.5rem; padding: 1.5rem; display: flex; flex-direction: column;
+            border: 1px solid #27272a; transition: border-color 0.3s;
         }
         .flip-card-front { background-color: var(--surface-color); }
-        .flip-card-back {
-            background-color: #181825; transform: rotateY(180deg);
-            border-color: var(--accent-red);
-        }
+        .flip-card-back { background-color: #181825; transform: rotateY(180deg); border-color: var(--accent-red); }
+
+        /* Secret Upside Down Card Style */
+        .secret-card .flip-card-front { background-color: #1a0505; border-color: #4a0000; }
+        .secret-card .flip-card-front h3 { color: #ff3333; text-shadow: 0 0 5px red; }
 
         /* Audio Button */
         .audio-btn {
             background: #27272a; border-radius: 50%; width: 36px; height: 36px;
             display: flex; justify-content: center; align-items: center;
-            transition: all 0.2s; border: 1px solid #3f3f46;
+            transition: all 0.2s; border: 1px solid #3f3f46; z-index: 5;
         }
         .audio-btn:hover { background: var(--accent-red); border-color: var(--accent-red); transform: scale(1.1); }
 
-        .chart-container {
-            position: relative; width: 100%; max-width: 800px; margin: 0 auto;
-            height: 300px; max-height: 400px;
-        }
+        .chart-container { position: relative; width: 100%; max-width: 800px; margin: 0 auto; height: 300px; max-height: 400px; }
         @media (min-width: 768px) { .chart-container { height: 350px; } }
 
         /* Spoiler & Bingo */
@@ -185,25 +129,20 @@
         }
         .reward-active { animation: pulse-reward 2s infinite; }
 
-        /* Interactive Text Tooltip */
-        .interactive-word {
-            border-bottom: 1px dashed var(--text-muted); cursor: help; position: relative;
+        /* Glitch text effect for hints */
+        .glitch-hint { position: relative; color: #a1a1aa; }
+        .glitch-hint::before {
+            content: attr(data-text); position: absolute; left: -2px; text-shadow: 1px 0 red; 
+            top: 0; color: #a1a1aa; background: var(--bg-color); overflow: hidden; clip: rect(0, 900px, 0, 0); animation: noise-anim-2 3s infinite linear alternate-reverse;
         }
-        .interactive-word .tooltip {
-            visibility: hidden; width: max-content; background-color: #E50914; color: #fff; text-align: center;
-            border-radius: 4px; padding: 4px 8px; position: absolute; z-index: 1;
-            bottom: 125%; left: 50%; transform: translateX(-50%); font-size: 0.875rem; font-family: 'Outfit', sans-serif;
-            opacity: 0; transition: opacity 0.3s; font-weight: normal; font-style: normal;
+        @keyframes noise-anim-2 {
+            0% { clip: rect(3px, 9999px, 14px, 0); } 20% { clip: rect(10px, 9999px, 2px, 0); }
+            40% { clip: rect(1px, 9999px, 8px, 0); } 60% { clip: rect(15px, 9999px, 11px, 0); }
+            80% { clip: rect(5px, 9999px, 6px, 0); } 100% { clip: rect(12px, 9999px, 15px, 0); }
         }
-        .interactive-word .tooltip::after {
-            content: ""; position: absolute; top: 100%; left: 50%; margin-left: -5px;
-            border-width: 5px; border-style: solid; border-color: #E50914 transparent transparent transparent;
-        }
-        .interactive-word:hover .tooltip { visibility: visible; opacity: 1; }
-
     </style>
 </head>
-<body class="crt flex flex-col relative" id="main-body">
+<body class="crt-enabled flex flex-col relative" id="main-body">
 
     <div id="particles" class="fixed inset-0 pointer-events-none z-0"></div>
 
@@ -214,112 +153,104 @@
                 <span class="text-xl md:text-2xl brand-font font-bold text-[#E50914] tracking-widest uppercase">Movie Club</span>
                 <span class="hidden lg:inline text-sm text-gray-500">| S1E1 Guide</span>
             </div>
-            <nav class="flex gap-3 md:gap-4 text-xs md:text-sm font-semibold items-center overflow-x-auto pb-1 md:pb-0">
-                <button onclick="scrollToSection('dossier')" class="hover:text-[#E50914] transition-colors whitespace-nowrap">Досье</button>
+            <nav class="flex gap-3 text-xs md:text-sm font-semibold items-center overflow-x-auto pb-1 md:pb-0">
                 <button onclick="scrollToSection('vocab')" class="hover:text-[#E50914] transition-colors whitespace-nowrap">Лексика</button>
                 <button onclick="scrollToSection('watchlist')" class="hover:text-[#E50914] transition-colors whitespace-nowrap">Бинго</button>
                 <button onclick="scrollToSection('discussion')" class="hover:text-[#E50914] transition-colors whitespace-nowrap">Разбор</button>
                 
-                <button id="upside-down-btn" class="ml-2 px-2 md:px-3 py-1 border border-[#E50914] text-[#E50914] rounded text-xs hover:bg-[#E50914] hover:text-white transition-colors uppercase tracking-widest flex items-center gap-1">
-                    <span>Изнанка</span>
-                </button>
+                <!-- Toggles -->
+                <div class="flex gap-2 border-l border-gray-700 pl-3 ml-1">
+                    <button id="crt-btn" class="px-2 py-1 border border-gray-500 text-gray-400 rounded text-[10px] hover:text-white transition-colors" title="Включить/выключить эффект старого ТВ">CRT: ON</button>
+                    <button id="upside-down-btn" class="px-2 md:px-3 py-1 border border-[#E50914] text-[#E50914] rounded text-xs hover:bg-[#E50914] hover:text-white transition-colors uppercase tracking-widest font-bold">
+                        <span>Изнанка</span>
+                    </button>
+                </div>
             </nav>
         </div>
     </header>
 
-    <!-- Hero Section -->
-    <section class="py-16 md:py-24 px-4 relative flex flex-col items-center justify-center min-h-[60vh] z-10 border-b border-gray-900">
+    <!-- Event Hero Section -->
+    <section class="py-12 md:py-20 px-4 relative flex flex-col items-center justify-center min-h-[65vh] z-10 border-b border-gray-900">
         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#E50914] opacity-[0.15] rounded-full blur-[120px] pointer-events-none"></div>
 
-        <div class="container mx-auto text-center max-w-3xl relative z-10">
-            <div class="inline-block border border-gray-700 px-4 py-1 rounded-full mb-6">
-                <span class="text-xs text-gray-400 font-mono uppercase tracking-[0.2em]"><span class="text-red-500 animate-pulse">●</span> Hawkins National Lab Archive</span>
+        <div class="container mx-auto text-center max-w-4xl relative z-10">
+            <!-- Event Badge -->
+            <div class="inline-flex items-center gap-2 border border-[#E50914] bg-red-900/20 px-4 py-2 rounded-full mb-8">
+                <span class="animate-pulse">🍿</span>
+                <span class="text-sm text-red-100 font-bold tracking-widest uppercase">English House Event</span>
             </div>
+            
             <h1 class="text-6xl md:text-8xl font-bold mb-4 text-white brand-font uppercase tracking-wider red-glow-text leading-none">
                 Stranger<br>Things
             </h1>
-            <h2 class="text-xl md:text-2xl text-gray-300 font-light mb-8 italic">Episode 1: The Vanishing of Will Byers</h2>
-            <p class="text-lg text-gray-400 mb-8 font-light max-w-2xl mx-auto">
-                Интерактивный гид для киноклуба. Изучайте произношение, разбирайте контекст и готовьтесь к обсуждению на английском!
-            </p>
-            <button onclick="scrollToSection('dossier')" class="btn-primary py-3 px-8 rounded font-bold uppercase tracking-widest text-sm">
-                Начать погружение
+            <h2 class="text-xl md:text-2xl text-gray-300 font-light mb-10 italic">Episode 1: The Vanishing of Will Byers</h2>
+            
+            <!-- Event Details Banner -->
+            <div class="bg-[#12121c] border border-gray-800 rounded-lg p-6 flex flex-col md:flex-row justify-center items-center gap-6 md:gap-12 mb-10 card-border w-max mx-auto">
+                <div class="flex items-center gap-3">
+                    <div class="text-3xl">🗓️</div>
+                    <div class="text-left">
+                        <p class="text-xs text-gray-500 uppercase tracking-wider">Date</p>
+                        <p class="font-bold text-white text-lg">28 Февраля</p>
+                    </div>
+                </div>
+                <div class="hidden md:block w-px h-10 bg-gray-700"></div>
+                <div class="flex items-center gap-3">
+                    <div class="text-3xl">⏰</div>
+                    <div class="text-left">
+                        <p class="text-xs text-gray-500 uppercase tracking-wider">Time</p>
+                        <p class="font-bold text-white text-lg">17:30 - 19:30</p>
+                    </div>
+                </div>
+                <div class="hidden md:block w-px h-10 bg-gray-700"></div>
+                <div class="flex items-center gap-3">
+                    <div class="text-3xl">📍</div>
+                    <div class="text-left">
+                        <p class="text-xs text-gray-500 uppercase tracking-wider">Location</p>
+                        <p class="font-bold text-white text-lg">Бакунина, 80А</p>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="scrollToSection('vocab')" class="btn-primary py-3 px-10 rounded font-bold uppercase tracking-widest text-sm shadow-[0_0_20px_rgba(229,9,20,0.3)] hover:shadow-[0_0_30px_rgba(229,9,20,0.6)]">
+                Подготовиться к встрече
             </button>
         </div>
     </section>
 
-    <!-- NEW: Character Dossier Section -->
-    <section id="dossier" class="py-16 px-4 relative z-10 bg-[#0a0a0f]">
-        <div class="container mx-auto max-w-5xl">
-            <div class="mb-10 text-center">
-                <h2 class="text-3xl brand-font font-bold mb-2 text-[#E50914]">Hawkins Files: Who is Who?</h2>
-                <p class="text-gray-400 text-sm">Первая серия знакомит с множеством героев. Краткая сводка, чтобы не запутаться.</p>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <!-- Dossier Cards -->
-                <div class="bg-[#12121c] border border-gray-800 p-4 rounded card-border relative overflow-hidden group">
-                    <div class="absolute top-0 right-0 bg-red-900 text-white text-[10px] uppercase font-bold px-2 py-1 typewriter-font">Classified</div>
-                    <h3 class="font-bold text-xl text-white mb-1 mt-4">Will Byers</h3>
-                    <p class="text-xs text-[#E50914] uppercase tracking-wider mb-2">The Missing Boy</p>
-                    <p class="text-sm text-gray-400 typewriter-font leading-relaxed">Ключевая фигура. Пропадает по дороге домой после игры в D&D. Тихий, творческий мальчик.</p>
-                </div>
-                <div class="bg-[#12121c] border border-gray-800 p-4 rounded card-border relative overflow-hidden">
-                    <h3 class="font-bold text-xl text-white mb-1 mt-4">The Boys</h3>
-                    <p class="text-xs text-blue-500 uppercase tracking-wider mb-2">Mike, Dustin, Lucas</p>
-                    <p class="text-sm text-gray-400 typewriter-font leading-relaxed">Лучшие друзья Уилла. Гики, фанаты науки и фэнтези. Берут расследование в свои руки.</p>
-                </div>
-                <div class="bg-[#12121c] border border-gray-800 p-4 rounded card-border relative overflow-hidden">
-                    <h3 class="font-bold text-xl text-white mb-1 mt-4">Joyce Byers</h3>
-                    <p class="text-xs text-yellow-500 uppercase tracking-wider mb-2">The Mother</p>
-                    <p class="text-sm text-gray-400 typewriter-font leading-relaxed">Мать Уилла. Все считают, что она сходит с ума от горя, но её материнский инстинкт не ошибается.</p>
-                </div>
-                <div class="bg-[#12121c] border border-gray-800 p-4 rounded card-border relative overflow-hidden">
-                    <h3 class="font-bold text-xl text-white mb-1 mt-4">Chief Hopper</h3>
-                    <p class="text-xs text-green-500 uppercase tracking-wider mb-2">Police Chief</p>
-                    <p class="text-sm text-gray-400 typewriter-font leading-relaxed">Циничный, пьющий шеф полиции с трагичным прошлым. Изначально не верит в серьезность пропажи.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Vocabulary Section (With Audio) -->
-    <section id="vocab" class="py-16 px-4 container mx-auto relative z-10 border-t border-gray-900">
+    <!-- Vocabulary Section (Dynamic via JS) -->
+    <section id="vocab" class="py-16 px-4 container mx-auto relative z-10">
         <div class="mb-10 text-center max-w-2xl mx-auto">
-            <h2 class="text-3xl brand-font font-bold mb-4 text-[#E50914]">Vocabulary: Speak Like a Native</h2>
-            <p class="text-gray-400 text-sm">
-                Нажимайте на <span class="text-white">🔊</span> чтобы услышать произношение.<br>Кликайте на саму карточку для перевода и контекста.
-            </p>
+            <h2 class="text-3xl brand-font font-bold mb-4 text-[#E50914]" id="vocab-title">Vocabulary: Speak Like a Native</h2>
+            <p class="text-gray-400 text-sm mb-2">Нажимайте на <span class="text-white">🔊</span> чтобы услышать произношение.</p>
+            <p class="text-[10px] uppercase font-mono glitch-hint" data-text="SOME WORDS ARE HIDDEN IN THE DARK">SOME WORDS ARE HIDDEN IN THE DARK</p>
             
             <div class="flex flex-wrap justify-center gap-2 mt-6" id="vocab-filters">
                 <button class="btn-outline btn-active py-1 px-4 rounded-full text-xs transition-colors uppercase tracking-wider" data-filter="all">All Words</button>
                 <button class="btn-outline py-1 px-4 rounded-full text-xs transition-colors uppercase tracking-wider" data-filter="action">Action</button>
-                <button class="btn-outline py-1 px-4 rounded-full text-xs transition-colors uppercase tracking-wider" data-filter="police">Investigation</button>
+                <button class="btn-outline py-1 px-4 rounded-full text-xs transition-colors uppercase tracking-wider" data-filter="nerd">Geek</button>
             </div>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="vocab-grid"></div>
     </section>
 
-    <!-- NEW: Interactive Quote Section -->
-    <section id="quote" class="py-16 px-4 relative z-10 bg-[#0a0a0f] border-y border-gray-900">
-        <div class="container mx-auto max-w-4xl text-center">
-            <h2 class="text-3xl brand-font font-bold mb-8 text-[#E50914]">Quote of the Episode</h2>
-            
-            <div class="bg-[#12121c] p-8 md:p-12 rounded-lg card-border relative">
-                <div class="text-6xl text-gray-800 absolute top-2 left-6 brand-font opacity-50">"</div>
-                <h3 class="text-2xl md:text-4xl font-bold text-white mb-6 italic leading-relaxed relative z-10">
-                    Mornings are for <span class="text-[#E50914]">coffee</span> and <span class="interactive-word text-[#E50914]">contemplation<span class="tooltip">глубокое размышление, созерцание</span></span>.
-                </h3>
-                <p class="text-right text-gray-400 font-bold mb-6 typewriter-font text-xl">— Chief Jim Hopper</p>
-                
-                <div class="text-left border-t border-gray-800 pt-6 mt-6 grid md:grid-cols-2 gap-4">
-                    <div>
-                        <p class="text-xs text-[#E50914] uppercase tracking-widest mb-1">Context</p>
-                        <p class="text-sm text-gray-400">Хоппер говорит это своей секретарше, которая пытается сообщить ему срочные новости с утра. Эта фраза идеально показывает его изначальное отношение к работе — он хочет, чтобы его оставили в покое.</p>
-                    </div>
-                    <div>
-                        <p class="text-xs text-[#E50914] uppercase tracking-widest mb-1">Grammar Note</p>
-                        <p class="text-sm text-gray-400">Слово <strong class="text-white">Contemplation</strong> звучит очень формально и умно (от глагола <em>to contemplate</em>). Ирония в том, что помятый коп использует "высокий" слог, чтобы оправдать свою лень с утра.</p>
+    <!-- NEW: 80s Slang Spotlight -->
+    <section class="py-12 px-4 relative z-10 bg-[#0a0a0f] border-y border-gray-900">
+        <div class="container mx-auto max-w-4xl">
+            <div class="flex flex-col md:flex-row items-center gap-8 bg-[#12121c] p-6 md:p-8 rounded-lg card-border relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 text-9xl opacity-5">🤬</div>
+                <div class="w-full md:w-1/3 text-center md:text-left">
+                    <p class="text-[#E50914] font-bold tracking-widest uppercase text-sm mb-2">80s Slang Spotlight</p>
+                    <h3 class="text-4xl brand-font font-bold text-white mb-2">Mouthbreather</h3>
+                    <button class="audio-btn text-white mx-auto md:mx-0 mt-4" onclick="playAudio(event, 'Mouthbreather')" title="Listen">🔊</button>
+                </div>
+                <div class="w-full md:w-2/3 border-t md:border-t-0 md:border-l border-gray-800 pt-6 md:pt-0 md:pl-8">
+                    <p class="text-gray-300 text-sm mb-4"><strong class="text-white">Перевод:</strong> "Дышащий ртом", тупица, болван.</p>
+                    <p class="text-gray-400 text-sm leading-relaxed mb-4">
+                        Это любимое оскорбление Майка. В 80-х годах (особенно благодаря фильму "Инопланетянин" / E.T.) дети использовали это слово для описания не очень умных людей, задир или тех, кто стоит с открытым ртом и ничего не понимает.
+                    </p>
+                    <div class="bg-black/50 p-3 rounded border-l-2 border-[#E50914] text-gray-400 italic text-sm">
+                        "He's a <span class="text-white font-bold">mouthbreather</span>. Just ignore him."
                     </div>
                 </div>
             </div>
@@ -333,11 +264,10 @@
                 <div class="w-full md:w-1/3 text-center md:text-left">
                     <h2 class="text-3xl brand-font font-bold mb-4 text-[#E50914]">Retro Bingo</h2>
                     <p class="text-gray-400 text-sm mb-4">
-                        Кликайте на пункты, когда заметите эти детали 80-х на экране. Найдете все 6 — получите пасхалку!
+                        Кликайте на пункты, когда заметите эти детали 80-х во время просмотра. Найдете все 6?
                     </p>
                     <div class="text-6xl font-bold text-white mt-4 typewriter-font" id="score-display">0<span class="text-gray-600 text-4xl">/6</span></div>
                     
-                    <!-- Hidden Reward -->
                     <div id="bingo-reward" class="hidden mt-6 bg-[#0a0a0f] border border-[#E50914] p-4 rounded text-center reward-active">
                         <p class="text-[#E50914] typewriter-font text-lg mb-1">>>> INCOMING TRANSMISSION...</p>
                         <p class="text-white font-bold italic">"He's here... The Demogorgon."</p>
@@ -353,7 +283,7 @@
         <div class="container mx-auto">
             <div class="text-center mb-10">
                 <h2 class="text-3xl brand-font font-bold mb-4 text-[#E50914]">Tension Tracker</h2>
-                <p class="text-gray-400 max-w-2xl mx-auto text-sm">Нажмите на точки на графике, чтобы изучить, как братья Дафферы управляют саспенсом в первой серии.</p>
+                <p class="text-gray-400 max-w-2xl mx-auto text-sm">Нажмите на точки на графике, чтобы изучить, как выстроен саспенс в серии (без спойлеров).</p>
             </div>
             <div class="bg-[#12121c] p-4 md:p-6 rounded-lg card-border">
                 <div class="chart-container"><canvas id="timelineChart"></canvas></div>
@@ -368,22 +298,60 @@
     <!-- Discussion Section -->
     <section id="discussion" class="py-16 px-4 relative z-10">
         <div class="container mx-auto max-w-4xl">
-            <h2 class="text-3xl brand-font font-bold mb-2 text-[#E50914]">Discussion Points</h2>
-            <p class="text-gray-400 mb-10 text-sm">Темы для обсуждения в Movie Club. Кликните на карточку, чтобы снять защиту от спойлеров.</p>
+            <h2 class="text-3xl brand-font font-bold mb-2 text-[#E50914]">Movie Club Discussion</h2>
+            <p class="text-gray-400 mb-10 text-sm">Вопросы для обсуждения после титров. Кликните, чтобы снять защиту от спойлеров.</p>
             <div class="space-y-4" id="discussion-container"></div>
         </div>
     </section>
 
     <footer class="bg-black text-gray-500 py-12 text-center border-t border-red-900 relative z-10">
         <p class="brand-font text-2xl mb-2 text-[#E50914] tracking-widest uppercase red-glow-text">Friends don't lie</p>
-        <p class="text-sm typewriter-font">Generated for English Movie Club</p>
+        <p class="text-sm typewriter-font">Created for the English House Movie Club</p>
     </footer>
 
     <script>
+        // --- CRT Toggle Logic ---
+        const crtBtn = document.getElementById('crt-btn');
+        let crtActive = true;
+        crtBtn.addEventListener('click', () => {
+            crtActive = !crtActive;
+            if(crtActive) {
+                document.body.classList.add('crt-enabled');
+                crtBtn.innerText = "CRT: ON";
+                crtBtn.classList.replace('text-gray-500', 'text-gray-400');
+            } else {
+                document.body.classList.remove('crt-enabled');
+                crtBtn.innerText = "CRT: OFF";
+                crtBtn.classList.replace('text-gray-400', 'text-gray-500');
+            }
+        });
+
+        // --- Vocabulary Data (Normal vs Upside Down) ---
+        const normalVocab = [
+            { word: "To Vanish", pron: "/ˈvænɪʃ/", type: "action", translation: "Исчезнуть (бесследно)", def: "To disappear suddenly and completely in a way that cannot be explained.", ctx: "Will vanishes on his way home." },
+            { word: "Campaign", pron: "/kæmˈpeɪn/", type: "nerd", translation: "Кампания (в игре D&D)", def: "A series of interconnected adventures in a tabletop role-playing game.", ctx: "We're in the middle of a ten-hour campaign!" },
+            { word: "Static", pron: "/ˈstætɪk/", type: "action", translation: "Помехи / Шум", def: "Crackling or hissing noises on a telephone or radio.", ctx: "Joyce hears static and heavy breathing on the phone." },
+            { word: "Search Party", pron: "/sɜːtʃ ˈpɑːrti/", type: "action", translation: "Поисковый отряд", def: "A group of people organized to look for someone who is lost.", ctx: "The town organizes a search party in the woods." },
+            { word: "Curfew", pron: "/ˈkɜːrfjuː/", type: "action", translation: "Комендантский час", def: "A rule requiring people to stay indoors between specified hours.", ctx: "The boys are supposed to be home before curfew." },
+            { word: "Weirdo", pron: "/ˈwɪərdoʊ/", type: "nerd", translation: "Чудик", def: "A person whose behavior seems strange or eccentric.", ctx: "The bullies call the boys weirdos." }
+        ];
+
+        const secretVocab = [
+            { word: "Demogorgon", pron: "/ˌdɛməˈɡɔːrɡən/", type: "monster", translation: "Демогоргон", def: "A predatory humanoid creature from a parallel dimension.", ctx: "It got me! The Demogorgon!" },
+            { word: "Dimension", pron: "/dɪˈmɛnʃn/", type: "science", translation: "Измерение", def: "A parallel universe or alternate reality.", ctx: "It came from another dimension." },
+            { word: "Flesh", pron: "/flɛʃ/", type: "monster", translation: "Плоть / Мясо", def: "The soft substance consisting of muscle and fat that is found between the skin and bones.", ctx: "The monster hunts for flesh." },
+            { word: "Portal", pron: "/ˈpɔːrtl/", type: "science", translation: "Портал", def: "A doorway, gate, or other entrance, especially a large and imposing one leading to another world.", ctx: "A portal opened in the lab." },
+            { word: "Contagion", pron: "/kənˈteɪdʒən/", type: "science", translation: "Зараза / Инфекция", def: "The communication of disease from one person to another.", ctx: "The air is filled with toxic spores." },
+            { word: "To Bleed", pron: "/bliːd/", type: "monster", translation: "Кровоточить", def: "To lose blood from the body as a result of injury or illness.", ctx: "It can smell when you bleed." }
+        ];
+
+        let activeVocab = normalVocab;
+
         // --- The Upside Down Logic ---
         const upsideDownBtn = document.getElementById('upside-down-btn');
         const body = document.getElementById('main-body');
         const particlesContainer = document.getElementById('particles');
+        const vocabTitle = document.getElementById('vocab-title');
         let upsideDownActive = false;
         let particleInterval;
 
@@ -391,7 +359,7 @@
             if(!upsideDownActive) return;
             const particle = document.createElement('div');
             particle.className = 'spore';
-            const size = Math.random() * 4 + 1;
+            const size = Math.random() * 5 + 1;
             particle.style.width = `${size}px`; particle.style.height = `${size}px`;
             particle.style.left = `${Math.random() * 100}vw`;
             particle.style.animationDuration = `${Math.random() * 10 + 5}s`;
@@ -402,57 +370,75 @@
         upsideDownBtn.addEventListener('click', () => {
             upsideDownActive = !upsideDownActive;
             if(upsideDownActive) {
+                // Activate
                 body.classList.add('upside-down');
                 upsideDownBtn.innerHTML = "<span>Вернуться</span>";
                 upsideDownBtn.classList.replace('text-[#E50914]', 'text-white');
                 upsideDownBtn.classList.replace('border-[#E50914]', 'border-white');
                 particleInterval = setInterval(createParticle, 200);
+                
+                // Swap Vocab
+                activeVocab = secretVocab;
+                vocabTitle.innerText = "Classified: The Upside Down";
+                vocabTitle.classList.replace('text-[#E50914]', 'text-red-700');
+                renderVocab('all');
+                document.getElementById('vocab-filters').style.display = 'none'; // Hide filters in secret mode
             } else {
+                // Deactivate
                 body.classList.remove('upside-down');
                 upsideDownBtn.innerHTML = "<span>Изнанка</span>";
                 upsideDownBtn.classList.replace('text-white', 'text-[#E50914]');
                 upsideDownBtn.classList.replace('border-white', 'border-[#E50914]');
                 clearInterval(particleInterval);
                 particlesContainer.innerHTML = '';
+                
+                // Restore Vocab
+                activeVocab = normalVocab;
+                vocabTitle.innerText = "Vocabulary: Speak Like a Native";
+                vocabTitle.classList.replace('text-red-700', 'text-[#E50914]');
+                renderVocab('all');
+                document.getElementById('vocab-filters').style.display = 'flex';
             }
         });
 
         // --- Web Speech API (Pronunciation) ---
         function playAudio(event, word) {
-            event.stopPropagation(); // Prevent card from flipping when clicking audio
+            event.stopPropagation();
             if ('speechSynthesis' in window) {
+                // Cancel any ongoing speech
+                window.speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(word);
-                utterance.lang = 'en-US'; // American English fits the show
-                utterance.rate = 0.9; // Slightly slower for clarity
+                utterance.lang = 'en-US';
+                
+                // Make Upside Down voices sound deeper/slower if supported
+                if (upsideDownActive) {
+                    utterance.pitch = 0.5;
+                    utterance.rate = 0.6;
+                } else {
+                    utterance.pitch = 1;
+                    utterance.rate = 0.9;
+                }
+                
                 window.speechSynthesis.speak(utterance);
             } else {
                 alert("Извините, ваш браузер не поддерживает озвучку текста.");
             }
         }
 
-        // --- Vocabulary Data ---
-        const vocabulary = [
-            { word: "To Vanish", pron: "/ˈvænɪʃ/", type: "action", translation: "Исчезнуть (бесследно)", def: "To disappear suddenly and completely in a way that cannot be explained.", ctx: "Will vanishes on his way home." },
-            { word: "Campaign", pron: "/kæmˈpeɪn/", type: "action", translation: "Кампания (в игре D&D)", def: "A series of interconnected adventures in a tabletop role-playing game.", ctx: "We're in the middle of a ten-hour campaign!" },
-            { word: "Static", pron: "/ˈstætɪk/", type: "action", translation: "Помехи / Шум", def: "Crackling or hissing noises on a telephone or radio.", ctx: "Joyce hears static and heavy breathing on the phone." },
-            { word: "Search Party", pron: "/sɜːtʃ ˈpɑːrti/", type: "police", translation: "Поисковый отряд", def: "A group of people organized to look for someone who is lost.", ctx: "The town organizes a search party in the woods." },
-            { word: "Curfew", pron: "/ˈkɜːrfjuː/", type: "police", translation: "Комендантский час", def: "A rule requiring people to stay indoors between specified hours.", ctx: "The boys are supposed to be home before curfew." },
-            { word: "Demogorgon", pron: "/ˌdɛməˈɡɔːrɡən/", type: "action", translation: "Демогоргон", def: "A powerful demon prince; the kids use this name for the real monster.", ctx: "It got me! The Demogorgon!" }
-        ];
-
+        // --- Render Vocabulary Cards ---
         function renderVocab(filterType) {
             const grid = document.getElementById('vocab-grid');
             grid.innerHTML = '';
-            const filtered = filterType === 'all' ? vocabulary : vocabulary.filter(item => item.type === filterType);
+            const filtered = filterType === 'all' ? activeVocab : activeVocab.filter(item => item.type === filterType);
 
             filtered.forEach(item => {
                 const card = document.createElement('div');
-                card.className = "flip-card";
+                card.className = `flip-card ${upsideDownActive ? 'secret-card' : ''}`;
                 card.onclick = () => card.classList.toggle('flipped');
 
                 let badgeColor = 'text-gray-300 border-gray-600';
-                if(item.type === 'action') badgeColor = 'text-red-400 border-red-800 bg-red-900/20'; 
-                if(item.type === 'police') badgeColor = 'text-blue-400 border-blue-800 bg-blue-900/20'; 
+                if(item.type === 'action' || item.type === 'monster') badgeColor = 'text-red-400 border-red-800 bg-red-900/20'; 
+                if(item.type === 'nerd' || item.type === 'science') badgeColor = 'text-blue-400 border-blue-800 bg-blue-900/20'; 
 
                 card.innerHTML = `
                     <div class="flip-card-inner">
@@ -465,17 +451,17 @@
                                 <h3 class="text-3xl font-bold text-white mb-1">${item.word}</h3>
                                 <p class="text-sm text-gray-500 font-mono">${item.pron}</p>
                             </div>
-                            <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-800">
-                                <p class="text-xs text-[#E50914] font-bold uppercase tracking-widest">Click to translate</p>
+                            <div class="flex justify-between items-center mt-4 pt-4 border-t ${upsideDownActive ? 'border-red-900/50' : 'border-gray-800'}">
+                                <p class="text-xs ${upsideDownActive ? 'text-red-500' : 'text-[#E50914]'} font-bold uppercase tracking-widest">Click to translate</p>
                                 <span class="text-gray-600 text-sm">🔁</span>
                             </div>
                         </div>
                         <div class="flip-card-back justify-between">
                             <div>
-                                <h3 class="text-xl font-bold text-white mb-2 pb-2 border-b border-gray-700">${item.translation}</h3>
+                                <h3 class="text-xl font-bold ${upsideDownActive ? 'text-red-500' : 'text-white'} mb-2 pb-2 border-b border-gray-700">${item.translation}</h3>
                                 <p class="text-sm text-gray-400 leading-relaxed mt-3">${item.def}</p>
                             </div>
-                            <div class="bg-[#08080c] p-3 text-sm text-gray-300 italic border-l-2 border-[#E50914] mt-4 rounded typewriter-font">
+                            <div class="bg-[#08080c] p-3 text-sm text-gray-300 italic border-l-2 ${upsideDownActive ? 'border-red-600 text-red-300' : 'border-[#E50914]'} mt-4 rounded typewriter-font">
                                 "${item.ctx}"
                             </div>
                         </div>
@@ -495,12 +481,12 @@
 
         // --- Bingo Logic ---
         const watchlistItems = [
-            { id: 1, text: "Кубик D20", icon: "🎲" },
+            { id: 1, text: "Бросок кубика D20", icon: "🎲" },
             { id: 2, text: "Мерцающий свет", icon: "💡" },
             { id: 3, text: "Рация (Walkie-talkie)", icon: "📻" },
             { id: 4, text: "Тату «011»", icon: "👁️" },
-            { id: 5, text: "Benny's Burgers", icon: "🍔" },
-            { id: 6, text: "Синт-вейв музыка", icon: "🎹" }
+            { id: 5, text: "Сцена в закусочной", icon: "🍔" },
+            { id: 6, text: "Тревожная синт-музыка", icon: "🎹" }
         ];
         let foundCount = 0;
 
@@ -543,11 +529,11 @@
 
         // --- Timeline Chart Logic ---
         const timelineData = [
-            { period: "Лаборатория", label: "Инцидент", tension: 90, title: "Ученый в беде", desc: "Серия открывается агрессивно. Саспенс на максимуме сразу, задавая тон всему сериалу." },
-            { period: "Дом Майка", label: "Игра в D&D", tension: 20, title: "Спокойствие 80-х", desc: "Контрастный переход: подвал, дети играют. Знакомство с главными героями в их зоне комфорта." },
-            { period: "Дорога домой", label: "Похищение", tension: 95, title: "Исчезновение Уилла", desc: "Уилл едет один. Жуткая атмосфера, силуэт на дороге, бегство в сарай. Классический хоррор." },
-            { period: "Утро", label: "Поиски", tension: 40, title: "Реакция взрослых", desc: "Хоппер лениво просыпается. Джойс в панике. Показывает разницу между предчувствием матери и рутиной копа." },
-            { period: "Кафе Бенни", label: "Появление 11", tension: 70, title: "Встреча с Оди", desc: "Появление странной девочки в больничной рубашке. Снова возникает угроза." }
+            { period: "Лаб", label: "Инцидент", tension: 90, title: "Ученый в беде", desc: "Серия открывается агрессивно. Саспенс на максимуме сразу." },
+            { period: "Дом", label: "D&D", tension: 20, title: "Спокойствие 80-х", desc: "Контрастный переход: подвал, дети играют. Знакомство с героями." },
+            { period: "Лес", label: "Похищение", tension: 95, title: "Исчезновение Уилла", desc: "Уилл едет один. Жуткая атмосфера, силуэт на дороге, бегство." },
+            { period: "Утро", label: "Поиски", tension: 40, title: "Реакция взрослых", desc: "Хоппер лениво просыпается. Джойс в панике. Контраст." },
+            { period: "Кафе", label: "Оди", tension: 70, title: "Встреча с 011", desc: "Появление странной девочки в рубашке. Правительственная угроза." }
         ];
 
         function initChart() {
@@ -600,26 +586,26 @@
 
         // --- Discussion Logic ---
         const discussionQs = [
-            { q: "Foreshadowing (Предзнаменование)", a: "Игра в подвале предсказывает сюжет. Мальчики сталкиваются с 'Демогоргоном', и Уилл выкидывает '7' — он проигрывает. Это метафора." },
-            { q: "The Adults vs. The Kids", a: "Взрослые ищут рациональные ответы (сбежал к отцу). Дети сразу принимают паранормальную версию. Как это характеризует их?" },
-            { q: "The Lighting (Освещение как сторителлинг)", a: "Свет используется как замена скримерам. Когда монстр рядом, электричество всегда сбоит. Это визуальный сигнал тревоги." }
+            { q: "The Roll of the Dice", a: "Игра в подвале предсказывает сюжет. Уилл выкидывает кубик D20 на '7' и проигрывает 'Демогоргону'. Это метафора того, что он встретит настоящего монстра и не сможет убежать." },
+            { q: "Adults vs. Kids", a: "Взрослые (полиция, Хоппер) ищут рациональные ответы. Дети сразу принимают теорию заговора и монстров. Это классический троп фильмов 80-х (например, The Goonies, E.T.)." },
+            { q: "The Symbolism of Light", a: "Свет используется как замена скримерам. Когда монстр рядом, электричество сбоит (фара Уилла, лампа Джойс). Это визуальный сигнал, что тонкая грань между мирами стирается." }
         ];
 
         function renderDiscussion() {
             const container = document.getElementById('discussion-container');
             discussionQs.forEach((item, index) => {
                 const div = document.createElement('div');
-                div.className = "bg-[#12121c] rounded card-border p-5 relative spoiler-container overflow-hidden";
+                div.className = "bg-[#12121c] rounded card-border p-5 md:p-6 relative spoiler-container overflow-hidden";
                 div.innerHTML = `
-                    <div class="flex items-center gap-4 mb-2">
-                        <span class="text-[#E50914] font-bold text-xl">${index + 1}.</span>
-                        <h3 class="text-lg font-bold text-white">${item.q}</h3>
+                    <div class="flex items-start md:items-center gap-4 mb-2">
+                        <span class="text-[#E50914] font-bold text-xl mt-1 md:mt-0">${index + 1}.</span>
+                        <h3 class="text-lg md:text-xl font-bold text-white">${item.q}</h3>
                     </div>
-                    <div class="relative mt-2">
+                    <div class="relative mt-4">
                         <div class="spoiler-overlay text-white text-xs font-bold tracking-wide uppercase flex items-center justify-center gap-2 backdrop-blur-md" onclick="this.parentElement.parentElement.classList.add('revealed')">
-                            <span class="text-[#E50914] text-lg">👁️‍🗨️</span> Reveal Answer
+                            <span class="text-[#E50914] text-xl">👁️‍🗨️</span> Reveal Talking Points
                         </div>
-                        <div class="spoiler-content text-gray-400 text-sm leading-relaxed border-l-2 border-[#E50914] pl-4 py-1">${item.a}</div>
+                        <div class="spoiler-content text-gray-400 text-sm leading-relaxed border-l-2 border-[#E50914] pl-4 py-2">${item.a}</div>
                     </div>
                 `;
                 container.appendChild(div);
@@ -636,6 +622,10 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             renderVocab('all'); renderWatchlist(); initChart(); renderDiscussion();
+            // Show glitch hint briefly
+            setTimeout(() => {
+                document.querySelector('.glitch-hint').style.display = 'block';
+            }, 2000);
         });
     </script>
 </body>
